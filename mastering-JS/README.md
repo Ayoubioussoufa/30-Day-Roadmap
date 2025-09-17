@@ -378,3 +378,195 @@ Only works for static imports.
 Not possible in CJS because require() is dynamic.
 
 ***Micro-build: Split utilities into ESM package; local install & use ***
+
+**Day 5: Iteration & Generators**
+  * Iterables, iterators, `for..of`, generator functions, async generators.
+
+1️⃣ Iterables & Iterators
+
+- Iterable: An object that defines how to access a sequence of values, one at a time.
+An object is iterable if it implements the Symbol.iterator method.
+Common examples: arrays, strings, sets, maps.
+
+- Iterator: An object returned by the iterable’s Symbol.iterator() method.
+Has a next() method.
+Each call to next() returns an object: { value: <currentValue>, done: <true/false> }.
+
+```javascript
+const arr = [10, 20, 30];
+
+// Get iterator
+const iterator = arr[Symbol.iterator]();
+
+console.log(iterator.next()); // { value: 10, done: false }
+console.log(iterator.next()); // { value: 20, done: false }
+console.log(iterator.next()); // { value: 30, done: false }
+console.log(iterator.next()); // { value: undefined, done: true }
+```
+Key idea: Iterators allow manual iteration. Iterables let us use automatic iteration like for..of.
+
+2️⃣ for..of Loop
+
+for..of works on any iterable (array, string, map, set, custom iterables).
+It automatically calls the iterator’s next() under the hood.
+
+```javascript
+const arr = [1, 2, 3];
+
+for (const num of arr) {
+  console.log(num); // 1 2 3
+}
+```
+for..of is simpler than using for loops or manually calling next().
+
+3️⃣ Generator Functions
+
+Generators are special functions that can pause and resume execution.
+Declared with function*.
+Use yield to produce a value.
+Calling a generator returns an iterator.
+```javascript
+function* countUpTo(max) {
+  for (let i = 1; i <= max; i++) {
+    yield i; // pause here and return i
+  }
+}
+
+// it returns a generator object with a .next() method.
+const counter = countUpTo(3);
+
+console.log(counter.next()); // { value: 1, done: false }
+console.log(counter.next()); // { value: 2, done: false }
+console.log(counter.next()); // { value: 3, done: false }
+console.log(counter.next()); // { value: undefined, done: true }
+// it keeps internal state without using an external variable.
+```
+
+Key points:
+Generators make custom iteration simple.
+Can be infinite: you can generate values lazily, only when needed.
+Streaming / paging – useful when working with large datasets or APIs that return chunks of data.
+
+4️⃣ Async Generators
+Works like generators but can await asynchronous operations.
+Declared with async function*.
+Iterated with for await..of.
+
+Example (simulated API fetch):
+```javascript
+async function* fetchPages(pages) {
+  for (let i = 1; i <= pages; i++) {
+    // simulate async fetch
+    await new Promise(r => setTimeout(r, 500));
+    yield `Page ${i} data`;
+  }
+}
+
+(async () => {
+  for await (const page of fetchPages(3)) {
+    console.log(page);
+  }
+})();
+```
+Use case: When data comes in chunks from APIs or streams.
+
+***Micro-build: Custom iterable (paged API → stream of items).***
+
+
+**Day 6: Functional Foundations**
+* Purity, immutability, composition vs inheritance.
+
+Functional programming (FP) is about writing programs using pure functions, avoiding shared state, and focusing on composition of behavior instead of inheritance.
+
+1. Purity
+
+A pure function always returns the same output for the same input and causes no side effects.
+for exemple: add(a,b)
+
+Pure functions are predictable, easy to test, and easier to reason about.
+
+2. Immutability
+
+Instead of mutating data, you create new copies with changes.
+This avoids side effects and bugs from shared references.
+
+```javascript
+// mutable
+let arr = [1, 2, 3];
+arr.push(4); // changes arr directly
+
+// immutable
+let arr = [1, 2, 3];
+let newArr = [...arr, 4]; // arr stays unchanged
+```
+
+
+3. Composition vs Inheritance
+
+Inheritance: extend functionality by creating subclasses. (OOP style)
+
+Composition: build bigger functions by combining smaller ones. (FP style)
+
+```javascript
+function double(x) { return x * 2; }
+function square(x) { return x * x; }
+
+// Composition
+let result = square(double(3)); // 36
+```
+
+4. Core FP Tools
+**a Compose & Pipe**
+
+compose: right → left execution
+pipe: left → right execution
+
+```javascript
+const compose = (f, g) => (x) => f(g(x));
+
+const double = (x) => x * 2;
+const square = (x) => x * x;
+
+let f = compose(square, double); 
+console.log(f(3)); // square(double(3)) → 36
+```
+
+**b Curry**
+
+Transform a multi-arg function into a chain of single-arg functions.
+
+```javascript
+function add(a, b) { return a + b; }
+
+// curried
+function curriedAdd(a) {
+  return function(b) {
+    return a + b;
+  };
+}
+
+curriedAdd(2)(3); // 5
+```
+Currying allows partial application and function reuse.
+
+
+**c Partial**
+
+Fix some arguments of a function in advance.
+
+```javascript
+function multiply(a, b) { return a * b; }
+
+const double = multiply.bind(null, 2); 
+console.log(double(5)); // 10
+```
+Partial application is like pre-configuring a function.
+
+Interesting links about functional programming and compositional software techniques in JavaScript ES6+ from the ground up.
+
+https://medium.com/javascript-scene/composing-software-an-introduction-27b72500d6ea
+https://medium.com/javascript-scene/transducers-efficient-data-processing-pipelines-in-javascript-7985330fe73d
+
+
+
+***Micro-build: Compose/pipe, curry, partial, transducer-style mapper.***

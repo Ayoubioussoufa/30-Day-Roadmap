@@ -1,7 +1,7 @@
 Below is an 8-week, 6-days/week roadmap. Each day ≈2–4 focused hours.
 ---
 
-# The Outcome You’re Aiming For
+# The Outcome I'm Aiming For
 
 * **Language mastery**: understand JS execution, memory, types, async, iteration, modules, and meta-programming at a spec-level intuition.
 * **Runtime fluency**: comfortable in **browser** and **Node** (and can translate between them).
