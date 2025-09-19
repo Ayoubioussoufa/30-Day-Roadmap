@@ -566,7 +566,104 @@ Interesting links about functional programming and compositional software techni
 
 https://medium.com/javascript-scene/composing-software-an-introduction-27b72500d6ea
 https://medium.com/javascript-scene/transducers-efficient-data-processing-pipelines-in-javascript-7985330fe73d
+https://web.mit.edu/6.001/6.037/sicp.pdf
 
+Excellent question — you’ve built them, now it’s time to understand **what they *are***, their **names**, and **when you’d actually use them** in real projects.
 
+---
+
+## 1️⃣ **Pipe / Compose**
+
+* **What it’s called:** *Function composition* (pipe = left→right, compose = right→left).
+* **Use case:** Whenever you have **a sequence of operations** you want to glue together into a single function.
+
+  * E.g. data transformations, string manipulations, sanitizing inputs, formatting outputs.
+* **When to think of it:**
+
+  * You catch yourself writing `fn3(fn2(fn1(value)))` → nesting looks ugly.
+  * Pipe makes it clean: `pipe(fn1, fn2, fn3)(value)`.
+
+---
+
+## 2️⃣ **Curry**
+
+* **What it’s called:** *Currying* (named after mathematician Haskell Curry).
+* **Use case:** Turning a function of multiple arguments into a **chain of single-argument functions**.
+
+  * Useful when you want **part of a function’s arguments fixed early**, and the rest provided later.
+* **When to think of it:**
+
+  * You need reusability: e.g. `multiply(2)(x)` to make a “double” function.
+  * You want to create function factories (functions that make functions).
+
+---
+
+## 3️⃣ **Partial**
+
+* **What it’s called:** *Partial application*.
+* **Use case:** Similar to currying, but instead of forcing one-by-one arguments, you “lock in” **some arguments up front**.
+
+  * Example: Instead of writing a new function `areaOfCircle(r)`, you can `partial(multiply, Math.PI)` to prefill π.
+* **When to think of it:**
+
+  * You reuse the same function with some arguments always the same.
+  * Great for config-driven functions or setting defaults.
+
+---
+
+## 4️⃣ **Transducer-style Mapper**
+
+* **What it’s called:** *Transducers*.
+* **Use case:** Efficient **data transformation pipelines**. They avoid creating intermediate arrays when chaining `map` → `filter` → `reduce`.
+
+  * Instead of `[...].map(...).filter(...)`, you build reusable *composable transformations* that can run on arrays, streams, async data, etc.
+* **When to think of it:**
+
+  * You’re transforming **large datasets** or **streams**.
+  * Performance matters and you want **no extra allocations**.
+  * Or you want your same transformations to work on arrays, generators, async iterables.
+
+---
+
+## 📌 Why they’re grouped together?
+
+They’re all about **functional programming techniques**:
+
+* **Pipe / compose** = glue functions together
+* **Curry / partial** = manage arguments flexibly
+* **Transducers** = manage data transformations efficiently
+
+**treat functions as building blocks** and **data as a flow** you transform step by step.
+
+---
+
+⚡ Quick mental triggers:
+
+* **Ugly nested calls?** → Use **pipe**.
+* **Want a function factory?** → Use **curry**.
+* **Want defaults baked in?** → Use **partial**.
+* **Transforming streams of data?** → Use **transducers**.
+
+**RealWorld developer scenarios.**
+1️⃣ Pipe / Compose
+
+📌 Scenario: API data cleanup before showing it in UI.
+You fetch data from an API → it’s messy:
+- Needs trimming whitespace
+- Needs lowercasing
+- Needs capitalizing the first letter
+
+Instead of:
+```javascript
+capitalize(trim(apiData.toLowerCase()))
+// You write:
+const cleanData = pipe(
+  str => str.toLowerCase(),
+  str => str.trim(),
+  str => str.charAt(0).toUpperCase() + str.slice(1)
+);
+```
+
+✅ Much cleaner. Now you can reuse cleanData(user.name) anywhere in your app.
 
 ***Micro-build: Compose/pipe, curry, partial, transducer-style mapper.***

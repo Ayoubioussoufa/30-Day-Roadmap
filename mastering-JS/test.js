@@ -177,3 +177,31 @@
 
 // console.log([1,2,3,4,5].reduce(pipeline, 0)); 
 // // → 12   (doubled numbers are [2,4,6,8,10], evens [2,4,6,8,10], sum = 30 actually? let's check!)
+
+const arr = [1, 2, 3, 4, 5, 6];
+// keep only odd numbers
+// triple each number 
+// find sum of the resulting number (reduce)
+
+
+function mapTransducer(fn) {
+    return function(reducer) {
+        return function(acc, value) {
+            return reducer(acc, fn(value));
+        }
+    }
+}
+
+function filterTransducer(fn) {
+    return function(reducer) {
+        return function(acc, value) {
+            if (fn(value))
+                return reducer(acc, value);
+            return acc;
+        }
+    }
+}
+
+let sumReducer = filterTransducer((x) => x % 2)(mapTransducer(x => x * 3)((acc, v) => acc + v));
+
+console.log(arr.toArray(sumReducer(0)));
